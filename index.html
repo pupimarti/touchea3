@@ -83,11 +83,11 @@
         const level_text = document.getElementById("level");
         var record = 0;
         var score = 0;
-        var level = "fácil";
+        var level = 1;
 
         var objs = [];
 
-        var play = false;
+        var game_cronometer;
 
         
         score_text.innerHTML = score;
@@ -97,27 +97,30 @@
         start.addEventListener("click", startGame);
 
         function startGame() {
-            play = true;
             initial_page.className="invisible"
             game.className = "";
-            addCircle();
             score = 0;
-            level = "fácil";
+            level = 1;
             score_text.innerHTML = score;
-            level_text.innerHTML = level;
+            level_text.innerHTML = getNameLevel();
+            game_cronometer = setInterval(msCrono,10)
+            addCircle(getSeconds());
         }
 
         function endGame() {
-            play = false;
+            clearInterval(game_cronometer);
             initial_page.className = "initial-page";
             game.className = "invisible";
             if(record < score)
                 record = score;
             level_text.innerHTML = level;
             record_text.innerHTML = record;
+            while(objs.length > 0){
+                deleteCircle(objs[0]);
+            }
         }
 
-        function addCircle(){
+        function addCircle(segs = 3){
          // añade el elemento creado y su contenido al DOM 
             //get pos
             const {left, top} = getRandomPosition();
@@ -128,6 +131,10 @@
             circle.className="circle";
             circle.style.left = left + "px";
             circle.style.top = top + "px";
+            if(segs === 3)
+                circle.style.backgroundColor = "green";
+            if(segs === 2)
+                circle.style.backgroundColor = "black";
             game.appendChild(circle); 
 
             //creo obj
@@ -135,9 +142,8 @@
             theCircle.element = circle;
 
             //agrego y guardo el cronometro
-            var crono = addCrono(theCircle, 2);
-
-            theCircle.cronometer = crono;
+            theCircle.s = segs;
+            theCircle.ms = 0;
             
             objs.push(theCircle);
 
@@ -145,40 +151,79 @@
         }
 
         function clickElement(element){
+            addCircle(getSeconds());
             deleteCircle(element);
-            addCircle(element);
             sumPoint();
-            if(score > 10 && objs.length === 1)
-                addCircle();
-            if(score > 20 && objs.length === 2)
-                addCircle();
-            if(score > 30 && objs.length === 3)
-                addCircle();
-            if(score > 40 && objs.length === 4)
-                addCircle();
+        }
+
+        function getSeconds(){
+            if(score > 40)
+                return 2;
+            if(score > 30)
+                return 3;
+            if(score > 20)
+                return 3;
+            if(score > 10)
+                return 4;
+            return 4;
         }
 
         function sumPoint(){
             score++;
             score_text.innerHTML = score;
-            if(score > 50)
-            level = "hacete ver"
-            else if(score > 40)
-            level = "estas demente";
-            else if(score > 30)
-            level = "DE RUTA"
-            else if(score > 20)
-            level = "Dificil"
-            else if(score > 10)
-            level  = "Medio"
-            if(level_text.innerHTML !== level){
-                level_text.innerHTML = level;
+            switch(score){
+                case 10:
+                    sumLevel();
+                    break;
+                case 20:
+                    sumLevel();
+                    break;
+                case 30:
+                    sumLevel();
+                    break;
+                case 40:
+                    sumLevel();
+                    break;
+                case 50:
+                    sumLevel();
+                    break;
+            }
+        }
+
+        function sumLevel(){
+            level++;
+            if(level === 2)
+                addCircle(getSeconds());
+            else if(level === 4)
+                addCircle(getSeconds());
+            level_text.innerHTML = getNameLevel();
+        }
+
+        function getNameLevel(){
+            switch(level){
+                case 1:
+                    return 'fácil';
+                    break;
+                case 2:
+                    return 'medio';
+                    break;          
+                case 3:
+                    return 'difícil';
+                    break;
+                case 4:
+                    return 're dificil';
+                    break;
+                case 5:
+                    return 'estas demente';
+                    break;
+                default:
+                    return 'hacete ver';
             }
         }
 
         function deleteCircle(element){
-            clearInterval(element.cronometer);
-            game.removeChild(element.element);
+            if(game.contains(element.element))
+                game.removeChild(element.element);
             const i_element = objs.indexOf(element);
             if(i_element > -1)
                 objs.splice(i_element, 1);
@@ -195,27 +240,29 @@
         }
 
         function addCrono(e, seconds = 5, miliseconds = 0){
-            s_crono = seconds;
+            s_crono = parseInt(seconds);
             ms_crono = miliseconds;
 
             e.element.innerHTML = s_crono + ":" + ms_crono;
 
-            cronometer = setInterval(function(){
-                e.element.innerHTML = s_crono + ":" + ms_crono;
-                ms_crono--;
-                if(ms_crono <= 0){
-                    ms_crono = 99;
-                    s_crono--;
-                }
-                if(s_crono <= -1){
-                    endGame();
-                    deleteCircle(e);
-                }
-            },10)
-
+            cronometer = setInterval(() => {msCrono(e, cronometer)},10)
             return cronometer;
+        }
 
+        function msCrono(){
+            for(var crono of objs){
+            crono.ms--;
+            if(crono.ms <= 0){
+                crono.ms = 99;
+                crono.s--;
             }
+            if(crono.s <= -1){
+                endGame();
+                deleteCircle(crono);
+            }
+            crono.element.innerHTML = crono.s + ":" + crono.ms;
+        }
+        }
     </script>
 </body>
 </html>
