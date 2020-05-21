@@ -1,3 +1,184 @@
-<html>
-<body><h1>prueba</h1></body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>touchea3</title>
+    <style>
+        html, body {
+            margin: 0;
+            overflow: none;
+        }
+        .initial-page{
+            width: 100vw;
+            height: 100vh;
+            background-color: bisque;
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow: none;
+        }
+        .w100{
+            text-align: center;
+            width: 100%;
+        }
+        .circle{
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: red;
+            color: #fff;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            cursor: pointer;
+        }
+        #game{
+            width: 100vw;
+            height: 100vh;
+            background-color: aquamarine;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .invisible{
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="game" class="invisible">
+        <p>Puntuación:<span id="puntation"></span></p>
+    </div>
+    
+    <div id="initial-page" class="initial-page">
+        <p class="w100">Récord: <span id="record"></span></p>
+        <button class="start" id="start">Comenzar</button>
+    </div>
+
+    </div>
+    <script>
+        const start = document.getElementById("start");
+        const root = document.getElementById("root"); 
+        const initial_page = document.getElementById("initial-page");
+        const game = document.getElementById("game"); 
+        const record_text = document.getElementById("record"); 
+        const score_text = document.getElementById("puntation");
+        var record = 0;
+        var score = 0;
+
+        var objs = [];
+
+        var play = false;
+
+        
+        score_text.innerHTML = score;
+        record_text.innerHTML = record;
+
+        start.addEventListener("click", startGame);
+
+        function startGame() {
+            play = true;
+            initial_page.className="invisible"
+            game.className = "";
+            addCircle();
+            score = 0;
+            score_text.innerHTML = score;
+        }
+
+        function endGame() {
+            play = false;
+            initial_page.className = "initial-page";
+            game.className = "invisible";
+            if(record < score)
+                record = score;
+
+            record_text.innerHTML = record;
+        }
+
+        function addCircle(){
+         // añade el elemento creado y su contenido al DOM 
+            //get pos
+            const {left, top} = getRandomPosition();
+            
+            // crea un nuevo div 
+            // y añade contenido 
+            var circle = document.createElement("div"); 
+            circle.className="circle";
+            circle.style.left = left + "px";
+            circle.style.top = top + "px";
+            game.appendChild(circle); 
+
+            //creo obj
+            var theCircle = new Object();
+            theCircle.element = circle;
+
+            //agrego y guardo el cronometro
+            var crono = addCrono(theCircle, 2);
+
+            theCircle.cronometer = crono;
+            
+            objs.push(theCircle);
+
+            circle.addEventListener("click", () => {clickElement(theCircle)});
+        }
+
+        function clickElement(element){
+            deleteCircle(element);
+            addCircle(element);
+            sumPoint();
+            if(score > 10 && objs.length === 1)
+                addCircle();
+        }
+
+        function sumPoint(){
+            score++;
+            score_text.innerHTML = score;
+        }
+
+        function deleteCircle(element){
+            clearInterval(element.cronometer);
+            game.removeChild(element.element);
+            const i_element = objs.indexOf(element);
+            if(i_element > -1)
+                objs.splice(i_element, 1);
+        }
+
+        function getRandomPosition(){
+            var left = Math.floor(Math.random() * document.body.clientWidth - 50);
+            var top = Math.floor(Math.random() * document.body.clientHeight - 50);
+
+            if(left < 0) left = 0;
+            if(top < 0) top = 0;
+
+            return {left, top}
+        }
+
+        function addCrono(e, seconds = 5, miliseconds = 0){
+            s_crono = seconds;
+            ms_crono = miliseconds;
+
+            e.element.innerHTML = s_crono + ":" + ms_crono;
+
+            cronometer = setInterval(function(){
+                e.element.innerHTML = s_crono + ":" + ms_crono;
+                ms_crono--;
+                if(ms_crono <= 0){
+                    ms_crono = 99;
+                    s_crono--;
+                }
+                if(s_crono <= -1){
+                    endGame();
+                    deleteCircle(e);
+                }
+            },10)
+
+            return cronometer;
+
+            }
+    </script>
+</body>
 </html>
