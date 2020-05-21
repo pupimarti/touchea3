@@ -58,11 +58,12 @@
 <body>
     <div id="page">
         <div id="game" class="invisible">
-            <p>Puntuación:<span id="puntation"></span></p>
             <p>Nivel: <span id="level"></span></p>
+            <p>Puntuación:<span id="puntation"></span></p>
         </div>
         
         <div id="initial-page" class="initial-page">
+            <h1>Touchea3</h1>
             <p class="w100">Récord: <span id="record"></span></p>
             <button class="start" id="start">Comenzar</button>
         </div>
@@ -151,9 +152,9 @@
                 addCircle();
             if(score > 20 && objs.length === 2)
                 addCircle();
-            if(score > 30 && objs.length === 2)
+            if(score > 30 && objs.length === 3)
                 addCircle();
-            if(score > 40 && objs.length === 2)
+            if(score > 40 && objs.length === 4)
                 addCircle();
         }
 
@@ -161,9 +162,9 @@
             score++;
             score_text.innerHTML = score;
             if(score > 50)
-            level = "DE REMOLACHA"
+            level = "hacete ver"
             else if(score > 40)
-            level = "DE RUCULA";
+            level = "estas demente";
             else if(score > 30)
             level = "DE RUTA"
             else if(score > 20)
