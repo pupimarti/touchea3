@@ -45,12 +45,24 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             align-items: center;
             z-index: 1;
             cursor: pointer;
+            font-size: 15px;
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none !important; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
         }
         #game{
             width: 100%;
             height: 100%;
             position: relative;
             text-align: center;
+            overflow: hidden;
+            font-size: 20px;
+            padding-top: 20px;
+            box-sizing: border-box;
         }
         .invisible{
             display: none !important;
@@ -64,13 +76,48 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             font-weight: bold;
             font-size: 20px;
         }
+
+        
+        .move-up-down{
+            animation: move-up-down 1s ease-in-out infinite ;
+        }
+
+        @keyframes move-up-down {
+            50%{     transform: translate(0, 50px);
+    -webkit-transform: translate(0, 50px); /** Chrome & Safari **/
+    -o-transform: translate(0, 50px); /** Opera **/
+    -moz-transform: translate(0, 50px); /** Firefox **/}
+                100%{
+                    transform: translate(0,0);
+    -webkit-transform: translate(0,0); /** Chrome & Safari **/
+    -o-transform: translate(0,0); /** Opera **/
+    -moz-transform: translate(0,0); /** Firefox **/
+                }
+        }
+
+        .move-right-left{
+            animation: move-right-left 1s ease-in-out infinite ;
+        }
+
+        @keyframes move-right-left {
+            50%{     transform: translate(50px,0);
+    -webkit-transform: translate(50px,0); /** Chrome & Safari **/
+    -o-transform: translate(50px,0); /** Opera **/
+    -moz-transform: translate(50px,0); /** Firefox **/}
+                100%{
+                    transform: translate(0,0);
+    -webkit-transform: translate(0,0); /** Chrome & Safari **/
+    -o-transform: translate(0,0); /** Opera **/
+    -moz-transform: translate(0,0); /** Firefox **/
+                }
+        }
+
     </style>
 </head>
 <body>
     <div id="page">
         <div id="game" class="invisible">
-            <p>Nivel: <span id="level"></span></p>
-            <p>Puntuación:<span id="puntation"></span></p>
+            <p id="puntation"></p>
         </div>
         
         <div id="initial-page" class="initial-page">
@@ -91,7 +138,6 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
         const game = document.getElementById("game"); 
         const record_text = document.getElementById("record"); 
         const score_text = document.getElementById("puntation");
-        const level_text = document.getElementById("level");
         var record = 0;
         var score = 0;
         var level = 1;
@@ -103,7 +149,6 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
         
         score_text.innerHTML = score;
         record_text.innerHTML = record;
-        level_text.innerHTML = level;
 
         start.addEventListener("click", startGame);
 
@@ -113,7 +158,6 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             score = 0;
             level = 1;
             score_text.innerHTML = score;
-            level_text.innerHTML = getNameLevel();
             game_cronometer = setInterval(msCrono,10)
             addCircle(getSeconds());
         }
@@ -124,7 +168,6 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             game.className = "invisible";
             if(record < score)
                 record = score;
-            level_text.innerHTML = level;
             record_text.innerHTML = record;
             while(objs.length > 0){
                 deleteCircle(objs[0]);
@@ -139,7 +182,7 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             // crea un nuevo div 
             // y añade contenido 
             var circle = document.createElement("div"); 
-            circle.className="circle";
+            circle.className= getClassCircle();
             circle.style.left = left + "px";
             circle.style.top = top + "px";
             if(segs === 3)
@@ -159,6 +202,18 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             objs.push(theCircle);
 
             circle.addEventListener("click", () => {clickElement(theCircle)});
+        }
+
+        function getClassCircle(){
+            if(level < 3)
+                return "circle";
+            const random = Math.floor(Math.random() * 2);
+            if(random === 0)
+                return "circle";
+            else if(random === 1)
+                return "circle move-right-left";
+            else
+                return "circle move-up-down";
         }
 
         function clickElement(element){
@@ -207,10 +262,9 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
                 addCircle(getSeconds());
             else if(level === 4)
                 addCircle(getSeconds());
-            level_text.innerHTML = getNameLevel();
         }
 
-        function getNameLevel(){
+        /* function getNameLevel(){
             switch(level){
                 case 1:
                     return 'fácil';
@@ -230,7 +284,7 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
                 default:
                     return 'hacete ver';
             }
-        }
+        } */
 
         function deleteCircle(element){
             if(game.contains(element.element))
