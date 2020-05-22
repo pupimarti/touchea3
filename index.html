@@ -139,6 +139,9 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
         const record_text = document.getElementById("record"); 
         const score_text = document.getElementById("puntation");
         var record = 0;
+        if(checkCookie("record"))
+            record = getCookie("record");
+
         var score = 0;
         var level = 1;
 
@@ -166,8 +169,10 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             clearInterval(game_cronometer);
             initial_page.className = "initial-page";
             game.className = "invisible";
-            if(record < score)
+            if(record < score){
                 record = score;
+                setCookie("record", record, 365);
+            }
             record_text.innerHTML = record;
             while(objs.length > 0){
                 deleteCircle(objs[0]);
@@ -328,6 +333,37 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
             crono.element.innerHTML = crono.s + ":" + crono.ms;
         }
         }
+
+        function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+  
+  function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+  
+  function checkCookie(cname) {
+    var cookie = getCookie(cname);
+    if (cookie != "") {
+        return true;
+    } else {
+        return false;
+    }
+  }
     </script>
 </body>
 </html>
